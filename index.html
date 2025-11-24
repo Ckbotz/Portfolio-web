@@ -1,74 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Telegram Deep Link Generator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Telegram Channels — Portfolio</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+    :root {
+      --bg: #07070a;
+      --card: #0f1220;
+      --glow: linear-gradient(90deg, #00f0ff33, #6a5cff33);
+      --accent: #00eaff;
+      --accent-2: #7a5cff;
+      --glass: rgba(255, 255, 255, 0.03);
+      --text: #e6f7ff;
+      --muted: #9aa6b2;
     }
-    textarea, input, button {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    .output {
-      background: #f4f4f4;
-      padding: 10px;
-      white-space: pre-wrap;
-      border: 1px solid #ccc;
+    
+    html, body {
+      height: 100%;
+      background: radial-gradient(1200px 600px at 10% 10%, #07101a 0%, transparent 15%), 
+                  radial-gradient(800px 400px at 90% 90%, #12001a 0%, transparent 12%), 
+                  var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    ::selection {
+      background: rgba(0, 230, 255, 0.15);
+    }
+    
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 48px;
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(6px) saturate(120%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      z-index: 20;
+    }
+    
+    .brand {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .brand .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 6px 30px rgba(122, 92, 255, 0.12), 
+                  inset 0 -6px 18px rgba(0, 0, 0, 0.35);
+      font-weight: 700;
+      color: #021;
+      font-size: 20px;
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      letter-spacing: 0.6px;
+    }
+    
+    p.lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: transparent;
+      color: var(--text);
+      font-weight: 600;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
     }
-    .copied {
-      color: green;
+    
+    .btn.join {
+      background: linear-gradient(90deg, rgba(0, 234, 255, 0.06), rgba(122, 92, 255, 0.04));
+      box-shadow: 0 8px 30px rgba(0, 234, 255, 0.03);
+    }
+    
+    /* Main Content */
+    main {
+      padding: 44px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 26px;
+    }
+    
+    /* Channel Card */
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.035);
+      backdrop-filter: blur(6px);
+      transform-style: preserve-3d;
+      transition: transform 0.45s cubic-bezier(0.15, 0.9, 0.25, 1), 
+                  box-shadow 0.45s;
+      cursor: default;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .card:hover {
+      transform: translateY(-14px) rotateX(4deg) scale(1.02);
+      box-shadow: 0 30px 80px rgba(3, 20, 38, 0.6);
+    }
+    
+    /* Smartwatch projection: pseudo element under card */
+    .card:before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -12px;
+      width: 80%;
+      height: 22px;
+      border-radius: 50%;
+      filter: blur(18px);
+      background: radial-gradient(closest-side, rgba(0, 230, 255, 0.12), rgba(122, 92, 255, 0.06), transparent 50%);
+      opacity: 0.9;
+      z-index: -1;
+      transition: all 0.45s;
+    }
+    
+    .card:hover:before {
+      bottom: -22px;
+      filter: blur(26px);
+      opacity: 1;
+    }
+    
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .channel-name {
       font-weight: bold;
+      font-size: 16px;
+      text-align: center;
+      margin: 0;
+    }
+    
+    .card-content {
+      flex-grow: 1;
+      margin-bottom: 20px;
+    }
+    
+    .desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-weight: normal;
+      text-align: center;
+    }
+    
+    .card-footer {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .join-btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: #041;
+      box-shadow: 0 8px 28px rgba(122, 92, 255, 0.18), 
+                  0 2px 8px rgba(0, 234, 255, 0.06);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .join-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(122, 92, 255, 0.25), 
+                  0 4px 12px rgba(0, 234, 255, 0.1);
+    }
+    
+    .join-btn .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 12px rgba(0, 234, 255, 0.9);
+    }
+    
+    /* Shine effect */
+    .card::after {
+      content: "";
+      position: absolute;
+      left: -60%;
+      top: -40%;
+      width: 40%;
+      height: 120%;
+      transform: skewX(-20deg);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+      pointer-events: none;
+      transition: all 0.9s ease;
+    }
+    
+    .card:hover::after {
+      left: 120%;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 28px 48px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+      header {
+        padding: 18px 24px;
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      main {
+        padding: 24px;
+      }
+      
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      
+      .avatar {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+    }
+    
+    @media (max-width: 520px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Subtle moving particles (decor) */
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.12;
+    }
+    
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 50%;
+      filter: blur(8px);
     }
   </style>
 </head>
 <body>
-
-  <h2>Telegram Link Generator</h2>
-
-  <label for="botUsername">Bot Username (e.g., @DramaShip1bot)</label>
-  <input type="text" id="botUsername" placeholder="@DramaShip1bot" />
-
-  <label for="messages">Enter Each Message on a New Line</label>
-  <textarea id="messages" rows="6" placeholder="The Death of Khun Phra&#10;Sky castle&#10;Hell for you"></textarea>
-
-  <button onclick="generateLinks()">Generate Links</button>
-
-  <h3>Output:</h3>
-  <div class="output" id="output"></div>
-  <p id="copyStatus" class="copied"></p>
-
+  <div class="particles" aria-hidden="true"></div>
+  
+  <header>
+    <div class="brand">
+      <div class="logo">TG</div>
+      <div>
+        <h1>My Telegram Channels</h1>
+        <p class="lead">A curated portfolio of channels — futuristic, clean, and ready to share.</p>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Top</button>
+      <a class="btn join" href="#channels">View Channels</a>
+    </div>
+  </header>
+  
+  <main id="channels">
+    <div class="grid">
+      <!-- Channel 1 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 1 logo">
+          </div>
+          <h3 class="channel-name">Tech Insights</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">This is a short description for Channel 1. Add whatever you like — rules, posting frequency, highlights.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite1" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+      
+      <!-- Channel 2 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 2 logo">
+          </div>
+          <h3 class="channel-name">Design Daily</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">A short description for Channel 2. Mention pinned resources or language if helpful.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite2" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+      
+      <!-- Channel 3 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 3 logo">
+          </div>
+          <h3 class="channel-name">Code Masters</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">Channel 3 description goes here. Keep it concise: 1–2 lines work best.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite3" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+      
+      <!-- Channel 4 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 4 logo">
+          </div>
+          <h3 class="channel-name">Startup News</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">Channel 4 description. Mention any rules or pinned message details here.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite4" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+      
+      <!-- Channel 5 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 5 logo">
+          </div>
+          <h3 class="channel-name">AI Updates</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">Channel 5 description goes here. Add relevant information about content.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite5" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+      
+      <!-- Channel 6 -->
+      <article class="card">
+        <div class="card-header">
+          <div class="avatar">
+            <img src="https://i.ibb.co/svfCkPgD/IMG-20251124-073353-479.jpg" alt="Channel 6 logo">
+          </div>
+          <h3 class="channel-name">Web Dev Tips</h3>
+        </div>
+        <div class="card-content">
+          <p class="desc">Channel 6 description. Add language tags or schedule if needed.</p>
+        </div>
+        <div class="card-footer">
+          <a class="join-btn" href="https://t.me/+ExampleInvite6" target="_blank" rel="noopener">
+            <span class="dot"></span> JOIN NOW
+          </a>
+        </div>
+      </article>
+    </div>
+  </main>
+  
+  <footer>
+    Built with ♥ — Edit logos, descriptions, and invite links directly in the HTML.
+  </footer>
+  
   <script>
-    function generateLinks() {
-      const botInput = document.getElementById("botUsername").value.trim();
-      const botUsername = botInput.startsWith("@") ? botInput.slice(1) : botInput;
-      const messages = document.getElementById("messages").value.trim().split("\n");
-      const output = messages.map(msg => {
-        const encoded = encodeURIComponent(msg.trim());
-        return `tg://resolve?domain=${botUsername}&text=${encoded}`;
-      }).join("\n");
+    // Generate subtle decorative particles
+    (function(){
+      const container = document.querySelector('.particles');
+      const COUNT = 28;
+      
+      for(let i = 0; i < COUNT; i++){
+        const el = document.createElement('div');
+        el.className = 'particle';
+        const size = 2 + Math.random() * 26;
+        el.style.width = size + 'px'; 
+        el.style.height = size + 'px';
+        el.style.left = Math.random() * 100 + '%'; 
+        el.style.top = Math.random() * 100 + '%';
+        el.style.opacity = 0.04 + Math.random() * 0.12;
+        el.style.transform = 'translate3d(0,0,0)';
+        el.style.borderRadius = '50%';
+        container.appendChild(el);
+      }
 
-      const outputDiv = document.getElementById("output");
-      outputDiv.textContent = output;
+      // Tiny drift animation using requestAnimationFrame
+      const particles = [...container.children];
+      let t = 0;
+      
+      function tick(){
+        t += 0.002;
+        for(let i = 0; i < particles.length; i++){
+          const el = particles[i];
+          const dx = Math.sin(t * (0.2 + i * 0.01)) * 6;
+          const dy = Math.cos(t * (0.17 + i * 0.01)) * 6;
+          el.style.transform = `translate(${dx}px, ${dy}px)`;
+        }
+        requestAnimationFrame(tick);
+      }
+      tick();
+    })();
 
-      // Copy to clipboard
-      navigator.clipboard.writeText(output).then(() => {
-        document.getElementById("copyStatus").textContent = "Copied to clipboard!";
-        setTimeout(() => {
-          document.getElementById("copyStatus").textContent = "";
-        }, 2000);
-      }).catch(err => {
-        document.getElementById("copyStatus").textContent = "Failed to copy.";
-      });
-    }
+    // Accessibility: allow keyboard focus for join buttons
+    document.querySelectorAll('.join-btn').forEach(btn => {
+      btn.setAttribute('tabindex', 0);
+    });
   </script>
-
 </body>
-</html>
+  </html>
